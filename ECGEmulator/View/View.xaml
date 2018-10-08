@@ -11,7 +11,7 @@
     <Window.DataContext>
         <vm:ViewModel x:Name="vm"/>
     </Window.DataContext>
-    
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -42,12 +42,12 @@
 
                 <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Margin="0,0,10,0">
                     <TextBlock Text="COM Port"/>
-                    <ComboBox ItemsSource="{Binding Path=PortList}" SelectedItem="{Binding Path=SelectedPort, Mode=TwoWay}"/>
+                    <ComboBox ItemsSource="{Binding Path=PortList}" SelectedItem="{Binding ElementName=vm, Path=Selected.Instance, Mode=TwoWay}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
                     <TextBlock Text="Baudrate"/>
-                    <ComboBox Text="9600"/>
+                    <ComboBox Text="9600" SelectedItem="{Binding Path=Selected.Baudrate}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="2" Margin="0,0,10,0">

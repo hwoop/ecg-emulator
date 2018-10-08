@@ -11,26 +11,6 @@ using System.Windows.Input;
 
 namespace ECGEmulator.ViewModel
 {
-    public sealed class SelecetedInfo
-    {
-        private static SelecetedInfo instance = new SelecetedInfo();
-
-        public string Port { get; set; }
-        public uint Baudrate { get; set; }
-        public uint DataBits { get; set; }
-        public Parity Parity { get; set; }
-        public uint StopBits { get; set; }
-
-        private SelecetedInfo()
-        {
-        }
-
-        public static SelecetedInfo getInstance()
-        {
-            return instance;
-        }
-    }
-
     public class ViewModel : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged
@@ -50,17 +30,27 @@ namespace ECGEmulator.ViewModel
                 if (cmdTryConnect == null)
                 {
                     cmdTryConnect = new RelayCommand(
-                        param => Worker.TryConnect(SelectedPort)
+                        param => Worker.TryConnect(Selected.Port)
                         );
                 }
                 return cmdTryConnect;
             }
         }
         #endregion
-        
+
         #region Properties
         public ObservableCollection<string> PortList { get; set; }
 
+        private SelectedInfo selected;
+        public SelectedInfo Selected
+        {
+            get { return selected; }
+            set
+            {
+                selected = value;
+                NotifyPropertyChanged(nameof(Selected));
+            }
+        }
         #endregion
 
         ViewModelWorker Worker;
@@ -76,4 +66,48 @@ namespace ECGEmulator.ViewModel
             NotifyPropertyChanged(nameof(PortList));
         }
     }
+
+    public class SelectedInfo: INotifyPropertyChanged
+    {
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        #endregion
+
+        private static SelectedInfo instance = new SelectedInfo();
+
+        private string port;
+        public string Port
+        {
+            get { return port; }
+            set
+            {
+                port = value;
+                NotifyPropertyChanged(nameof(Port));
+            }
+        }
+        public uint Baudrate { get; set; }
+        public uint DataBits { get; set; }
+        public Parity Parity { get; set; }
+        public uint StopBits { get; set; }
+
+        private SelectedInfo()
+        {
+        }
+
+        public static SelectedInfo Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new SelectedInfo();
+
+                return instance;
+            }
+        }
+    }
+   
 }

@@ -9,7 +9,7 @@ namespace ECGEmulator.ViewModel
 {
     public class ViewModelWorker
     {
-        SerialCommunicator Serial;
+        //SerialCommunicator Serial;
         public ViewModelWorker()
         {
             //Serial = new SerialCommunicator();
