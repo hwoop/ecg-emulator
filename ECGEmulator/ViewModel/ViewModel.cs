@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Input;
 
 namespace ECGEmulator.ViewModel
@@ -36,6 +36,21 @@ namespace ECGEmulator.ViewModel
                 return cmdTryConnect;
             }
         }
+
+        private ICommand cmdSendMessage;
+        public ICommand CmdSendMessage
+        {
+            get
+            {
+                if (cmdSendMessage == null)
+                {
+                    cmdSendMessage = new RelayCommand(
+                        param => Send(RawData)
+                        );
+                }
+                return cmdSendMessage;
+            }
+        }
         #endregion
 
         #region Properties
@@ -54,6 +69,14 @@ namespace ECGEmulator.ViewModel
                 isConnected = value;
                 NotifyPropertyChanged(nameof(IsConnected));
             }
+        }
+
+        public string RawData { get; set; }
+
+        private StringBuilder dataLogger = new StringBuilder();
+        public string DataLogger
+        {
+            get { return Convert.ToString(dataLogger); }
         }
 
         private SelectedInfo selected;
@@ -93,6 +116,10 @@ namespace ECGEmulator.ViewModel
             SelectedInfo.Instance.DataBits = DataBits.FirstOrDefault();
             SelectedInfo.Instance.Parity = Parity.FirstOrDefault();
             SelectedInfo.Instance.StopBits = StopBits.FirstOrDefault();
+
+#if Debug
+            RunDemo();
+#endif
         }
 
         private void TryConnect()
@@ -103,20 +130,43 @@ namespace ECGEmulator.ViewModel
             }
             else
             {
+                Worker.CloseSerialPort();
                 IsConnected = false;
             }
+        }
+
+        private void Send(string data)
+        {
+            Worker.Send(data);
+            dataLogger.AppendLine(data);
+            NotifyPropertyChanged(nameof(DataLogger));
+        }
+
+        Timer DemoTimer;
+        public void RunDemo()
+        {
+            DemoTimer = new Timer();
+            DemoTimer.Interval = 20;
+            DemoTimer.Elapsed += new ElapsedEventHandler(OnTime);
+            DemoTimer.Start();
+        }
+
+        Random Rand = new Random();
+        private void OnTime(object sender, ElapsedEventArgs e)
+        {   
+            Send(Convert.ToString(Rand.Next()%255));
         }
     }
 
     public class SelectedInfo : INotifyPropertyChanged
     {
-        #region INotifyPropertyChanged
+#region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        #endregion
+#endregion
 
         private static SelectedInfo instance = new SelectedInfo();
 
