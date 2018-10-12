@@ -60,7 +60,7 @@ namespace ECGEmulator.ViewModel
             if (!Serial.IsOpen)
                 return;
 
-            byte[] datas = STX.Concat(Encoding.ASCII.GetBytes(data)).Concat(ETX).ToArray();
+            byte[] datas = STX.Concat(Encoding.ASCII.GetBytes(data)).Concat(ETX)?.ToArray();
 
             //Serial.Write(STX, 0, 1);
             Serial.Write(datas, 0, datas.Length);

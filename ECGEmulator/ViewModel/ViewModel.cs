@@ -7,7 +7,9 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Timers;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shapes;
 
 namespace ECGEmulator.ViewModel
 {
@@ -51,6 +53,22 @@ namespace ECGEmulator.ViewModel
                 return cmdSendMessage;
             }
         }
+
+        private ICommand cmdRunDemo;
+        public ICommand CmdRunDemo
+        {
+            get
+            {
+                if (cmdRunDemo == null)
+                {
+                    cmdRunDemo = new RelayCommand(
+                        param => RunDemo()
+                        );
+                }
+                return cmdRunDemo;
+            }
+        }
+
         #endregion
 
         #region Properties
@@ -73,11 +91,19 @@ namespace ECGEmulator.ViewModel
 
         public string RawData { get; set; }
 
+        #region Textbox data
         private StringBuilder dataLogger = new StringBuilder();
         public string DataLogger
         {
             get { return Convert.ToString(dataLogger); }
         }
+        #endregion
+
+        #region Canvas
+        private int x = 0;
+        private double prevData = 0.0d;
+        public ObservableCollection<Line> WaveformLine { get; set; } = new ObservableCollection<Line>();
+        #endregion
 
         private SelectedInfo selected;
         public SelectedInfo Selected
@@ -139,6 +165,7 @@ namespace ECGEmulator.ViewModel
         {
             Worker.Send(data);
             dataLogger.AppendLine(data);
+            DrawLine(Convert.ToDouble(data));
             NotifyPropertyChanged(nameof(DataLogger));
         }
 
@@ -155,6 +182,31 @@ namespace ECGEmulator.ViewModel
         private void OnTime(object sender, ElapsedEventArgs e)
         {   
             Send(Convert.ToString(Rand.Next()%255));
+        }
+
+        private void DrawLine(double data)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if (WaveformLine.Count >= App.Current.MainWindow.ActualWidth)
+                {
+                    WaveformLine.RemoveAt(0);
+                }
+
+                Line line = new Line();
+                line.Stroke = System.Windows.Media.Brushes.Black;
+                line.StrokeThickness = 1;
+
+                line.X1 = WaveformLine.Count;
+                line.Y1 = prevData;
+                
+                line.X2 = WaveformLine.Count + 1;
+                line.Y2 = data;
+
+                prevData = data;
+
+                WaveformLine.Add(line);
+            });
         }
     }
 

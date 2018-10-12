@@ -119,18 +119,65 @@
         </Grid>
 
         <Grid Grid.Row="2" Margin="0,5,0,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0" HorizontalAlignment="Stretch" Text="{Binding Path=DataLogger, Mode=OneWay}" IsReadOnly="True"/>
-            
-            <!--<TextBox Grid.Column="0" Text="{Binding Path=DataLogger, Mode=OneWay}" IsReadOnly="True">
-            </TextBox>-->
+            <Grid Grid.Row="0" Margin="0,5,0,5">
+                <ToggleButton x:Name="tgBtnViewModeChange" IsChecked="False">
+                    <ToggleButton.Style>
+                        <Style TargetType="{x:Type ToggleButton}">
+                            <Setter Property="Content" Value="Text Mode"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=tgBtnViewModeChange, Path=IsChecked}" Value="True">
+                                    <Setter Property="Content" Value="Graph Mode"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                </ToggleButton>
+            </Grid>
+
+            <Grid Grid.Row="1" Grid.Column="0">
+                <TextBox HorizontalAlignment="Stretch" Text="{Binding Path=DataLogger, Mode=OneWay}" IsReadOnly="True">
+                    <TextBox.Style>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=tgBtnViewModeChange, Path=IsChecked}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <ItemsControl ItemsSource="{Binding WaveformLine}" Background="blue">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>    
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.Style>
+                        <Style TargetType="{x:Type ItemsControl}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=tgBtnViewModeChange, Path=IsChecked}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                </ItemsControl>
+            </Grid>
 
             <Grid Grid.Column="1">
-
+                <Button Content="Run Demo" Width="100" Command="{Binding CmdRunDemo}" IsEnabled="{Binding IsConnected}"/>
             </Grid>
         </Grid>
     </Grid>
