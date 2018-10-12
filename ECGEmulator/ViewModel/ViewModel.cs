@@ -181,32 +181,40 @@ namespace ECGEmulator.ViewModel
         Random Rand = new Random();
         private void OnTime(object sender, ElapsedEventArgs e)
         {   
-            Send(Convert.ToString(Rand.Next()%255));
+            Send(Convert.ToString(Rand.Next()%200));
         }
 
         private void DrawLine(double data)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            try
             {
-                if (WaveformLine.Count >= App.Current.MainWindow.ActualWidth)
+                App.Current.Dispatcher?.Invoke(() =>
                 {
-                    WaveformLine.RemoveAt(0);
-                }
+                    Line line = new Line();
+                    line.Stroke = System.Windows.Media.Brushes.Black;
+                    line.StrokeThickness = 1;
 
-                Line line = new Line();
-                line.Stroke = System.Windows.Media.Brushes.Black;
-                line.StrokeThickness = 1;
+                    if (x >= App.Current.MainWindow.ActualHeight - 1)
+                        x = 0;
 
-                line.X1 = WaveformLine.Count;
-                line.Y1 = prevData;
-                
-                line.X2 = WaveformLine.Count + 1;
-                line.Y2 = data;
+                    if (WaveformLine.Count >= App.Current.MainWindow.ActualHeight - 15)
+                        WaveformLine.RemoveAt(0);
 
-                prevData = data;
+                    line.X1 = x++ % App.Current.MainWindow.ActualHeight;
+                    line.Y1 = prevData;
 
-                WaveformLine.Add(line);
-            });
+                    line.X2 = x % App.Current.MainWindow.ActualHeight;
+                    line.Y2 = data;
+
+                    prevData = data;
+
+                    WaveformLine.Add(line);
+                });
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
     }
 
